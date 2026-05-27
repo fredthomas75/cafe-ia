@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Café IA
 
-## Getting Started
+Café parisien torréfié à Montréal. Boutique transactionnelle Next.js + Stripe.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** App Router · React 19 · TypeScript
+- **Tailwind CSS v4** (tokens Berry & Cream, palette café latte)
+- **Zustand** (panier persisté `localStorage`)
+- **Stripe Checkout** (paiement carte / Apple Pay / Google Pay)
+- **Vercel** (déploiement)
+
+## Démarrage local
 
 ```bash
+npm install
+cp .env.example .env.local      # remplir les clés Stripe (optionnel)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> Sans `STRIPE_SECRET_KEY`, le checkout tourne en **mode démo** — la commande
+> est confirmée sans paiement réel. Idéal pour tester les flux sans configurer
+> Stripe.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+```
+app/
+  page.tsx                # Hero, marquee, sélection, story, valeurs
+  menu/                   # Grille filtrable par catégorie/tag
+  produit/[slug]/         # Fiche produit (SSG)
+  panier/                 # Panier client (Zustand)
+  commande/               # Form coordonnées + redirection Stripe
+  commande/success/       # Confirmation (retrieve session Stripe)
+  notre-histoire/         # Récit de marque
+  livraison/              # Zones desservies + features
+  api/checkout/           # POST → session Stripe (prix serveur)
+components/
+  header.tsx, footer.tsx, cart-button.tsx
+  scoop.tsx               # Boule arrondie avec emoji + gradient
+  product-card.tsx, add-to-cart.tsx
+lib/
+  utils.ts                # cn(), formatPrice()
+  shipping.ts             # constants (partagé serveur/client)
+  products.ts             # catalogue (10 produits)
+  cart.ts                 # store Zustand persisté
+  stripe.ts               # client Stripe + getSiteUrl()
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Variables d'environnement
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Description | Obligatoire |
+|---|---|---|
+| `STRIPE_SECRET_KEY` | Clé secrète Stripe (`sk_live_…` ou `sk_test_…`) | Non — sans elle, mode démo |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Clé publique Stripe | Non |
+| `NEXT_PUBLIC_SITE_URL` | URL publique pour redirections Stripe | Non — dérivée de Vercel |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Garanties de sécurité Stripe
 
-## Deploy on Vercel
+- Les prix sont **toujours résolus côté serveur** depuis `lib/products.ts` ;
+  jamais trustés depuis le client.
+- Les quantités sont **clampées** entre 1 et 50.
+- Chaque session Stripe utilise une **clé d'idempotence** (hash du panier +
+  email), évitant les doublons en cas de double-clic.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Déploiement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Pousser le repo sur GitHub.
+2. Importer sur [vercel.com/new](https://vercel.com/new).
+3. Dans **Settings → Environment Variables**, ajouter :
+   - `STRIPE_SECRET_KEY`
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+4. (Optionnel) configurer un domaine custom et un webhook Stripe pour le
+   fulfillment réel.
+
+## Prochaines étapes
+
+- Brancher un webhook Stripe (`checkout.session.completed`) vers une route
+  d'envoi de courriel + création de tâche dans le système d'expédition.
+- Ajouter des photos produits (placeholders emoji actuellement).
+- Connecter Vercel Blob pour les images.
+- Brancher Vercel Analytics et Speed Insights.

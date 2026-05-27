@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Berry & Cream palette — café parisien à Montréal */
+  --cream: #fbf5ef;
+  --cream-deep: #f4e8dc;
+  --rose-pale: #f3d6d2;
+  --rose: #d99a93;
+  --rose-deep: #b66a62;
+  --cacao: #4a2a20;
+  --cacao-soft: #6a3a2c;
+  --espresso: #2a140e;
+  --gold: #c8956a;
+  --moss: #7a8a6a;
+
+  --background: var(--cream);
+  --foreground: var(--espresso);
+  --muted: #8b6f63;
+  --line: #e9d8cb;
+  --accent: var(--rose-deep);
+  --accent-soft: var(--rose-pale);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-rose-pale: var(--rose-pale);
+  --color-rose: var(--rose);
+  --color-rose-deep: var(--rose-deep);
+  --color-cacao: var(--cacao);
+  --color-cacao-soft: var(--cacao-soft);
+  --color-espresso: var(--espresso);
+  --color-gold: var(--gold);
+  --color-moss: var(--moss);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes morph {
+  0%,
+  100% {
+    border-radius: 62% 38% 54% 46% / 48% 52% 48% 52%;
+    transform: rotate(0deg) translate(0, 0);
   }
+  33% {
+    border-radius: 42% 58% 38% 62% / 58% 42% 62% 38%;
+    transform: rotate(120deg) translate(2%, -1%);
+  }
+  66% {
+    border-radius: 58% 42% 62% 38% / 42% 58% 42% 58%;
+    transform: rotate(240deg) translate(-1%, 2%);
+  }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "ss01", "ss02";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-feature-settings: "ss01", "swsh";
+  letter-spacing: -0.012em;
+}
+
+.blob {
+  animation: morph 18s ease-in-out infinite;
+  filter: blur(0.5px);
+}
+
+.blob-slow {
+  animation: morph 28s ease-in-out infinite reverse;
+}
+
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+
+.float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cream-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rose);
+  border: 3px solid var(--cream-deep);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rose-deep);
+}
+
+::selection {
+  background: var(--rose-pale);
+  color: var(--cacao);
+}
+
+* {
+  border-color: var(--line);
 }
