@@ -67,13 +67,58 @@ lib/
 
 ## Déploiement
 
-1. Pousser le repo sur GitHub.
-2. Importer sur [vercel.com/new](https://vercel.com/new).
-3. Dans **Settings → Environment Variables**, ajouter :
-   - `STRIPE_SECRET_KEY`
-   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-4. (Optionnel) configurer un domaine custom et un webhook Stripe pour le
-   fulfillment réel.
+Trois chemins. Choisis selon ton flux.
+
+### A · CLI local — déploiement à la demande
+
+```bash
+npm run vercel:link    # première fois — lie le repo à un projet Vercel
+npm run deploy         # → preview URL
+npm run deploy:prod    # → production
+```
+
+Le premier `vercel:link` crée `.vercel/project.json` (non commit). Les
+commandes suivantes utilisent ce lien automatiquement.
+
+### B · GitHub Action — auto-deploy sur chaque push
+
+Le workflow [`.github/workflows/vercel-deploy.yml`](.github/workflows/vercel-deploy.yml)
+déploie :
+- **Preview** sur chaque PR + push de branche secondaire
+- **Production** sur chaque push de `main`
+
+Les PR reçoivent un commentaire avec l'URL preview.
+
+Configuration unique (GitHub → Settings → Secrets and variables → Actions) :
+
+| Secret | Source |
+|---|---|
+| `VERCEL_TOKEN` | https://vercel.com/account/tokens — create token |
+| `VERCEL_ORG_ID` | `cat .vercel/project.json` (champ `orgId`) après `npm run vercel:link` |
+| `VERCEL_PROJECT_ID` | `cat .vercel/project.json` (champ `projectId`) |
+
+### C · Intégration GitHub native de Vercel (zéro config)
+
+1. [vercel.com/new](https://vercel.com/new) → importer le repo.
+2. Vercel détecte Next.js, configure tout (build, ISR, fonctions).
+3. Chaque push déclenche un deploy.
+
+Si tu choisis C, supprime [`.github/workflows/vercel-deploy.yml`](.github/workflows/vercel-deploy.yml)
+pour éviter la double exécution.
+
+### Variables d'environnement Vercel
+
+Une fois le projet créé, dans **Settings → Environment Variables** :
+- `STRIPE_SECRET_KEY` *(sans → mode démo, voir plus haut)*
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+
+Ou via CLI : `vercel env add STRIPE_SECRET_KEY production`.
+
+### Configuration en code — `vercel.ts`
+
+Le fichier [`vercel.ts`](vercel.ts) configure la plateforme (framework, régions,
+maxDuration des fonctions, headers de sécurité) sans passer par le dashboard.
+C'est la méthode recommandée par Vercel depuis 2026.
 
 ## Prochaines étapes
 
